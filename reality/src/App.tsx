@@ -1,9 +1,10 @@
 import React from 'react';
+import CubeComponent from './components/ui/CubeComponent';
 
 const App: React.FC = () => {
   return (
     <div>
-      <h1>Hello, TypeScript with Webpack!</h1>
+      <CubeComponent />
     </div>
   );
 };
