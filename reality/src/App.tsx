@@ -1,12 +1,8 @@
 import React from 'react';
-import CubeComponent from './components/ui/CubeComponent';
+import Scene from '@components/3d/Scene';
 
 const App: React.FC = () => {
-  return (
-    <div>
-      <CubeComponent />
-    </div>
-  );
+  return <Scene/>;
 };
 
 export default App;

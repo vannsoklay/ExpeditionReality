@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "target": "es2015",
+    "module": "esnext",
     "skipLibCheck": true,
     "strict": true,
     "esModuleInterop": true,
