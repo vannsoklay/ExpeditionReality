@@ -22,6 +22,7 @@ module.exports = {
       '@styles': path.resolve(__dirname, 'src/styles'),
       '@assets': path.resolve(__dirname, 'src/assets'),
       '@scenes': path.resolve(__dirname, 'src/scenes'),
+      '@controllers': path.resolve(__dirname, 'src/controllers'),
       '@3d': path.resolve(__dirname, 'src/3d'), // For 3D files
     },
   },

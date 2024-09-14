@@ -4,81 +4,47 @@ import * as THREE from 'three';
 import CameraControls from './CameraControls';
 import Lighting from './Lighting';
 import ModelLoader from './ModelLoader';
+import CharacterController from '@controllers/CharacterController';
+import useKeyboardControls from '@hooks/useKeyboardControls';
+import { World, Body, Box, Vec3 } from 'cannon-es';
+import Physics from './Physics';
+import MapperController from '@controllers/MapperController';
+
 
 const Scene: React.FC = () => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef(new THREE.Scene());
   const cameraRef = useRef(
-    new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+    new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 800)
   );
   const rendererRef = useRef(new THREE.WebGLRenderer({ antialias: true }));
+
+  const characterBodyRef = useRef<Body | null>(null);
+
+  const characterRef = useRef(new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshStandardMaterial({ color: 0x00ff00 })
+  ));
+
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2());
-
-  // Callback when model is loaded
-  const handleModelLoaded = (model: THREE.Group) => {
-    // Perform actions with the loaded model, like animations or positioning
-    model.position.set(0, -1, 0); // Adjust position if needed
-    sceneRef.current.add(model);
-  };
-
-  // Function to handle click events
-  const handleMouseClick = (event: MouseEvent) => {
-    if (!rendererRef.current || !cameraRef.current) return;
-
-    // Calculate mouse position in normalized device coordinates (-1 to +1) for both axes
-    mouseRef.current.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouseRef.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    // Update the picking ray with the camera and mouse position
-    raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
-
-    // Calculate objects intersecting the picking ray
-    const intersects = raycasterRef.current.intersectObjects(sceneRef.current.children, true);
-
-    if (intersects.length > 0) {
-      // Perform an action on the first intersected object
-      const selectedObject = intersects[0].object;
-
-      // Example: Simple scaling animation on click
-      const initialScale = selectedObject.scale.clone();
-      const targetScale = initialScale.clone().multiplyScalar(1.2);
-      const animationDuration = 500;
-
-      let start: number | null = null;
-
-      const animateScale = (timestamp: number) => {
-        if (!start) start = timestamp;
-        const progress = (timestamp - start) / animationDuration;
-
-        if (progress < 1) {
-          selectedObject.scale.lerpVectors(initialScale, targetScale, progress);
-          requestAnimationFrame(animateScale);
-        } else {
-          selectedObject.scale.copy(initialScale); // Reset to the original scale
-        }
-      };
-
-      requestAnimationFrame(animateScale);
-    }
-  };
 
   useEffect(() => {
     const { current: scene } = sceneRef;
     const { current: camera } = cameraRef;
     const { current: renderer } = rendererRef;
 
+    const character = characterRef.current;
+
     if (!mountRef.current) return;
+
+    character.name = 'box'; // Name the object to sync with the physics body
+    scene.add(character);
 
     // Renderer setup
     renderer.setSize(window.innerWidth, window.innerHeight);
     mountRef.current.appendChild(renderer.domElement);
-    camera.position.z = 5;
-
-    // Lighting
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(5, 10, 7.5);
-    scene.add(light);
+    camera.position.set(0.1, 0.1, 0.5);
 
     // Animation loop
     const animate = () => {
@@ -86,34 +52,42 @@ const Scene: React.FC = () => {
       renderer.render(scene, camera);
     };
 
-    window.addEventListener('click', handleMouseClick);
+    // useKeyboardControls(characterRef.current);
 
     // Start the animation loop
     animate();
 
-    // Cleanup on unmount
-    return () => {
-      window.addEventListener('click', handleMouseClick);
-      if (renderer.domElement) {
-        mountRef.current?.removeChild(renderer.domElement);
-      }
-      renderer.dispose();
+    // Handle window resize
+    const onResize = () => {
+      // Update camera aspect ratio
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+
+      // Update renderer size
+      renderer.setSize(window.innerWidth, window.innerHeight);
     };
 
     // Clean up when component unmounts
     return () => {
       if (mountRef.current) {
         mountRef.current.removeChild(renderer.domElement);
+        window.removeEventListener('resize', onResize);
       }
       renderer.dispose();
+      scene.clear();
     };
   }, []);
 
   return (
-    <div ref={mountRef}>
+    <div ref={mountRef} style={{ width: '100%', height: '98vh', overflow: 'hidden' }}>
       <CameraControls camera={cameraRef.current} renderer={rendererRef.current} />
       <Lighting scene={sceneRef.current} />
-      <ModelLoader scene={sceneRef.current} />
+      <MapperController scene={sceneRef.current} camera={cameraRef.current} renderer={rendererRef.current} freezeControls={true} />
+      {characterBodyRef.current && (
+        <CharacterController body={characterBodyRef.current} />
+      )}
+      {/* <ModelLoader scene={sceneRef.current} /> */}
+      <Physics scene={sceneRef.current} />
     </div>
   );
 };

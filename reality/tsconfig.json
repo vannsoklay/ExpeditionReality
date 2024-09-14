@@ -32,6 +32,9 @@
       "@scenes/*": [
         "src/scenes/*"
       ],
+      "@controllers/*": [
+        "src/controllers/*"
+      ],
       "@3d/*": [
         "src/3d/*"
       ] // Path for your 3D related files
