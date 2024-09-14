@@ -1,7 +1,0 @@
-/node_modules*
-*dist/*
-Cargo.lock
-package-lock.json
-
-.env*.local
-.env
