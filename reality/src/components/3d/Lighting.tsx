@@ -7,15 +7,27 @@ interface LightingProps {
 
 const Lighting: React.FC<LightingProps> = ({ scene }) => {
   useEffect(() => {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(10, 10, 10);
+
+    const directionalLightOne = new THREE.DirectionalLight(0xffffff, 3);
+    directionalLightOne.position.set(1, 1, 1);
+    const directionalLightTwo = new THREE.DirectionalLight(0x002288, 3);
+    directionalLightOne.position.set(-1, -1, -1);
+
+    scene.add(directionalLightOne);
+    scene.add(directionalLightTwo);
+    const ambientLight = new THREE.AmbientLight(0x555555);
+
     scene.add(ambientLight);
-    scene.add(directionalLight);
+
+    // const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8d8d8d, 3);
+    // hemiLight.position.set(0, 20, 0);
+    // scene.add(hemiLight);
+
 
     return () => {
       scene.remove(ambientLight);
-      scene.remove(directionalLight);
+      scene.remove(directionalLightOne);
+      scene.remove(directionalLightTwo);
     };
   }, [scene]);
 
