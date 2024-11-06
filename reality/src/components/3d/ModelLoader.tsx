@@ -6,14 +6,14 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 interface ModelLoaderProps {
   scene: THREE.Scene;
-  controls: OrbitControls
+  // controls: OrbitControls
 }
 
-const ModelLoader: React.FC<ModelLoaderProps> = ({ scene, controls }) => {
+const ModelLoader: React.FC<ModelLoaderProps> = ({ scene }) => {
   useEffect(() => {
     const loader = new GLTFLoader();
     loader.load(
-      '/assets/models/player.glb', // Path to your GLB model
+      '/assets/models/ferrari.glb', // Path to your GLB model
       (gltf) => {
         const model = gltf.scene;
 

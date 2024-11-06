@@ -1,49 +1,63 @@
+// src/hooks/useKeyboardControls.ts
 import { useEffect, useState } from 'react';
-import { Body } from 'cannon-es';
 
+const useKeyboardControls = () => {
+  const [keys, setKeys] = useState({
+    w: false,  // Move forward
+    s: false,  // Move backward
+    a: false,  // Turn left
+    d: false,  // Turn right
+  });
 
-const useKeyboardControls = (character: Body) => { // Replace with actual type
-    const [keys, setKeys] = useState<{ [key: string]: boolean }>({});
+  const handleKeyDown = (event: KeyboardEvent) => {
+    switch (event.key) {
+      case 'w':
+        setKeys((prev) => ({ ...prev, w: true }));
+        break;
+      case 's':
+        setKeys((prev) => ({ ...prev, s: true }));
+        break;
+      case 'a':
+        setKeys((prev) => ({ ...prev, a: true }));
+        break;
+      case 'd':
+        setKeys((prev) => ({ ...prev, d: true }));
+        break;
+      default:
+        break;
+    }
+  };
 
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            setKeys((prev) => ({ ...prev, [event.key]: true }));
-        };
+  const handleKeyUp = (event: KeyboardEvent) => {
+    switch (event.key) {
+      case 'w':
+        setKeys((prev) => ({ ...prev, w: false }));
+        break;
+      case 's':
+        setKeys((prev) => ({ ...prev, s: false }));
+        break;
+      case 'a':
+        setKeys((prev) => ({ ...prev, a: false }));
+        break;
+      case 'd':
+        setKeys((prev) => ({ ...prev, d: false }));
+        break;
+      default:
+        break;
+    }
+  };
 
-        const handleKeyUp = (event: KeyboardEvent) => {
-            setKeys((prev) => ({ ...prev, [event.key]: false }));
-        };
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
 
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (character) {
-            const moveSpeed = 5;
-
-            if (keys['w']) {
-                character.velocity.z = -moveSpeed;
-            } else if (keys['s']) {
-                character.velocity.z = moveSpeed;
-            } else {
-                character.velocity.z = 0;
-            }
-
-            if (keys['a']) {
-                character.velocity.x = -moveSpeed;
-            } else if (keys['d']) {
-                character.velocity.x = moveSpeed;
-            } else {
-                character.velocity.x = 0;
-            }
-        }
-    }, [keys, character]);
+  return keys;
 };
 
 export default useKeyboardControls;
