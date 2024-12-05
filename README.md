@@ -62,7 +62,7 @@ Live Demo Coming Soon! *(Replace with the live project link once deployed)*
 ### Directory Structure
 
 ```
-ExpeditionReality/
+reality/
 ├── src/
 │   ├── components/
 │   │   ├── 3d/
