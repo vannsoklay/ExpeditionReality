@@ -3,7 +3,7 @@
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 // import CameraControls from './CameraControls';
 // import Lighting from './Lighting';
-import ModelLoader from './ModelLoader';
+// import ModelLoader from './ModelLoader';
 // import useKeyboardControls from '@hooks/useKeyboardControls';
 // import WorldController from '@controllers/WorldController';
 // import Modal from '@components/common/Model';
@@ -270,10 +270,10 @@ const Scene: React.FC = () => {
     gridRef.current = grid;
 
     // Environment map
-    new RGBELoader().load('textures/equirectangular/venice_sunset_1k.hdr', (texture) => {
-      texture.mapping = THREE.EquirectangularReflectionMapping;
-      scene.environment = texture;
-    });
+    // new RGBELoader().load('textures/equirectangular/venice_sunset_1k.hdr', (texture) => {
+    //   texture.mapping = THREE.EquirectangularReflectionMapping;
+    //   scene.environment = texture;
+    // });
 
     // Materials
     const bodyMaterial = new THREE.MeshPhysicalMaterial({
@@ -307,42 +307,48 @@ const Scene: React.FC = () => {
     loader.load(
       '/assets/models/ferrari_sf90_stradale.glb',
       (gltf) => {
-        const carModel = gltf.scene.children[0];
 
-        const bodyMesh = carModel.getObjectByName('body') as THREE.Mesh;
+        const carModel = gltf.scene;
+        carModel.traverse((child) => {
+          console.log("Object Name:", child.name); // Log all object names
+        });
+        console.log("part", carModel.getObjectByName("WheelbrakeFtR_Stradale027_0"));
+        const bodyMesh = carModel.getObjectByName('WheelbrakeFtR_Stradale027_0') as THREE.Mesh;
         if (bodyMesh) bodyMesh.material = bodyMaterial;
 
-        const detailParts = ['rim_fl', 'rim_fr', 'rim_rr', 'rim_rl', 'trim'];
-        detailParts.forEach(part => {
-          const mesh = carModel.getObjectByName(part) as THREE.Mesh;
-          if (mesh) mesh.material = detailsMaterial;
-        });
+        // const detailParts = ['rim_fl', 'rim_fr', 'rim_rr', 'rim_rl', 'trim'];
+        // detailParts.forEach(part => {
+        //   console.log("part", part);
 
-        const glassMesh = carModel.getObjectByName('glass') as THREE.Mesh;
-        if (glassMesh) glassMesh.material = glassMaterial;
+        //   const mesh = carModel.getObjectByName(part) as THREE.Mesh;
+        //   if (mesh) mesh.material = detailsMaterial;
+        // });
 
-        wheelsRef.current = [
-          carModel.getObjectByName('wheel_fl'),
-          carModel.getObjectByName('wheel_fr'),
-          carModel.getObjectByName('wheel_rl'),
-          carModel.getObjectByName('wheel_rr')
-        ].filter((wheel): wheel is THREE.Object3D => wheel !== null);
+        // const glassMesh = carModel.getObjectByName('glass') as THREE.Mesh;
+        // if (glassMesh) glassMesh.material = glassMaterial;
+
+        // wheelsRef.current = [
+        //   carModel.getObjectByName('wheel_fl'),
+        //   carModel.getObjectByName('wheel_fr'),
+        //   carModel.getObjectByName('wheel_rl'),
+        //   carModel.getObjectByName('wheel_rr')
+        // ].filter((wheel): wheel is THREE.Object3D => wheel !== null);
 
         // Shadow
-        // new THREE.TextureLoader().load('/assets/ferrari_ao.png', (texture) => {
-        //   const shadow = new THREE.Mesh(
-        //     new THREE.PlaneGeometry(0.655 * 4, 1.3 * 4),
-        //     new THREE.MeshBasicMaterial({
-        //       map: texture,
-        //       blending: THREE.MultiplyBlending,
-        //       toneMapped: false,
-        //       transparent: true
-        //     })
-        //   );
-        //   shadow.rotation.x = -Math.PI / 2;
-        //   shadow.renderOrder = 2;
-        //   carModel.add(shadow);
-        // });
+        new THREE.TextureLoader().load('/assets/ferrari_ao.png', (texture) => {
+          const shadow = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.655 * 4, 1.3 * 4),
+            new THREE.MeshBasicMaterial({
+              map: texture,
+              blending: THREE.MultiplyBlending,
+              toneMapped: false,
+              transparent: true
+            })
+          );
+          shadow.rotation.x = -Math.PI / 2;
+          shadow.renderOrder = 2;
+          carModel.add(shadow);
+        });
 
         scene.add(carModel);
         setIsLoading(false);
@@ -454,8 +460,8 @@ const Scene: React.FC = () => {
         </div>
       </div>
       <div className="absolute right-10 top-8">
-        <button 
-          onClick={() => setModalVisible(true)} 
+        <button
+          onClick={() => setModalVisible(true)}
           className='p-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full'
           aria-label="Back to Home"
         >
